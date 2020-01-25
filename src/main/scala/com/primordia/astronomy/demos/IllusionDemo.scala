@@ -15,7 +15,7 @@ object IllusionDemo {
 }
 
 class IllusionDemo extends OglApp("Illusion") {
-  var step = 0.0f
+  step = 0.0f
 
   canvas.addGLEventListener(new GLEventListener() {
 

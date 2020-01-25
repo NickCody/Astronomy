@@ -8,6 +8,7 @@ import com.jogamp.opengl.awt.GLCanvas
 import com.jogamp.opengl.fixedfunc.GLLightingFunc
 import com.jogamp.opengl.glu.GLU
 import com.jogamp.opengl.util.FPSAnimator
+import com.jogamp.opengl.util.gl2.GLUT
 import javax.swing.{JFrame, JPanel, WindowConstants}
 
 class OglApp(title: String) extends BasicAppGlEventListener  {
@@ -17,12 +18,12 @@ class OglApp(title: String) extends BasicAppGlEventListener  {
   protected val fps = 144
 
   protected val caps = new GLCapabilities(null)
-  caps.setDoubleBuffered(true)
-  caps.setHardwareAccelerated(true)
   caps.setNumSamples(8)
+  caps.setAlphaBits(8)
   caps.setSampleBuffers(true)
 
   protected val canvas: GLCanvas = new GLCanvas(caps)
+  val glut = new GLUT
 
   canvas.setPreferredSize(new Dimension(
     Integer.getInteger("width", DEFAULT_WINDOW_WIDTH),

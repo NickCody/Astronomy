@@ -13,7 +13,6 @@ object SphereDemo {
   }
 }
 class SphereDemo extends OglApp("Illusion") {
-  var step = 0.0f
 
   canvas.addGLEventListener(new GLEventListener() {
 

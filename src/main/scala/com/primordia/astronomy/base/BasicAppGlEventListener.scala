@@ -10,6 +10,8 @@ trait BasicAppGlEventListener extends GLEventListener {
   var width: Int = DEFAULT_WINDOW_WIDTH
   var height: Int = DEFAULT_WINDOW_HEIGHT
   var ratio: Float = DEFAULT_WINDOW_WIDTH.toFloat/DEFAULT_WINDOW_HEIGHT.toFloat
+  var step: Float = 0f
+  var step_rate: Float = 1f
 
   override def init(drawable: GLAutoDrawable): Unit = {
     val gl = drawable.getGL.getGL2
@@ -19,11 +21,15 @@ trait BasicAppGlEventListener extends GLEventListener {
     gl.glEnable(GL.GL_MULTISAMPLE)
     gl.glEnable(GL.GL_LINE_SMOOTH)
     gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+
+    gl.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_NICEST)
   }
 
   override def dispose(drawable: GLAutoDrawable): Unit = {}
 
-  override def display(drawable: GLAutoDrawable): Unit = {}
+  override def display(drawable: GLAutoDrawable): Unit = {
+    step = step + step_rate
+  }
 
   override def reshape(drawable: GLAutoDrawable, x: Int, y: Int, _width: Int, _height: Int): Unit = {
     width = _width
