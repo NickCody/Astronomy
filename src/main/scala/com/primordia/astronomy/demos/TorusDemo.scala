@@ -6,7 +6,13 @@ import com.jogamp.opengl._
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc
 import com.jogamp.opengl.glu.GLU
 import com.primordia.astronomy.base.OglApp
-import com.primordia.astronomy.shapes.ColorWheel
+import com.primordia.astronomy.base.caps.HighQualityCapsProvider
+import com.primordia.astronomy.base.view.StandardView
+import com.primordia.astronomy.shapes.{ColorWheel, Torus}
+import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
+
+import scala.collection.mutable
+import scala.collection.mutable.ArrayBuffer
 
 object TorusDemo {
   def main(args: Array[String]): Unit = {
@@ -14,33 +20,23 @@ object TorusDemo {
   }
 }
 
-class TorusDemo extends OglApp("Torus Demo") {
+class TorusDemo extends OglApp("Torus Demo") with HighQualityCapsProvider {
+  protected val view = new StandardView(canvas)
+
   step_rate = 0.33f
 
-  val zFar = 100f
-  val zNear = 1f
-  var fov = 45f
-  var eyeZ = 10f
-
-  private val colorWheel = new ColorWheel
-
-  canvas.addKeyListener(new KeyListener() {
-
-    def keyPressed(e: KeyEvent): Unit = {
-      e.getKeyCode match {
-        case KeyEvent.VK_UP     => fov = fov * 1.1f
-        case KeyEvent.VK_DOWN   => fov = Math.max(1f, fov / 1.1f)
-        case KeyEvent.VK_RIGHT  => eyeZ = eyeZ * 1.1f
-        case KeyEvent.VK_LEFT   => eyeZ = Math.max(1f, eyeZ / 1.1f)
-      }
-
-      println(s"fov=$fov, eyeZ = $eyeZ")
+  val turbulence = 0.01f
+  val scale = 8f
+  val dim = 40
+  val spacing = 10
+  val translations = ArrayBuffer.fill[Vector3D](dim * dim)(new Vector3D(0, 0, 0))
+  for (i <- 0 until dim) {
+    for (j <- 0 until dim) {
+      translations.update(i * dim + j, new Vector3D(0, 0, 0));
     }
+  }
 
-    def keyTyped(e: KeyEvent): Unit = {}
-
-    def keyReleased(e: KeyEvent): Unit = {}
-  })
+  private val torus = new Torus(1f, 2f, 12, 24)
 
   canvas.addGLEventListener(new GLEventListener() {
 
@@ -50,40 +46,38 @@ class TorusDemo extends OglApp("Torus Demo") {
 
       gl.glMatrixMode(GLMatrixFunc.GL_MODELVIEW)
       gl.glLoadIdentity()
+
       gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-      glu.gluPerspective(fov, ratio, zNear, zFar)
-      glu.gluLookAt(0, 0, eyeZ, 0, 0, 0, 0f, 1f, 0f)
+      glu.gluPerspective(view.fov, ratio, view.zNear, view.zFar)
+      glu.gluLookAt(0, 0, view.eyeZ, 0, 0, 0, 0f, 1f, 0f)
 
-      gl.glPushMatrix();
-        gl.glRotatef(step, 0, 1, 0)
+      for (i <- 0 until dim) {
+        for (j <- 0 until dim) {
+          gl.glPushMatrix()
 
-        gl.glPushAttrib(GL2.GL_ALL_ATTRIB_BITS)
-          gl.glPolygonOffset(1, 1)
-          gl.glColor3f(0.1f,0.1f,0.1f)
-          gl.glEnable(GL.GL_POLYGON_OFFSET_FILL)
-          glut.glutSolidTorus(1f, 2f, 16, 32)
+          val offset = translations(i * dim + j).add(
+            new Vector3D(
+              turbulence/2f - Math.random() * turbulence,
+              turbulence/2f - Math.random() * turbulence,
+              turbulence/2f - Math.random() * turbulence,
+            )
+          )
 
-          gl.getGL2GL3.glPolygonMode(GL.GL_FRONT_AND_BACK, GL2GL3.GL_LINE)
-          gl.glDisable(GL.GL_POLYGON_OFFSET_FILL)
-          gl.glColor3f(1,1,1)
-          glut.glutWireTorus(1f, 2f, 16, 32)
-        gl.glPopAttrib()
-      gl.glPopMatrix()
+          translations(i * dim + j) = offset
+          val v1 = (new Vector3D(scale * (dim / 2 - i), scale * (dim / 2 - j), 0)).add(offset)
+          gl.glTranslated(v1.getX, v1.getY, v1.getZ)
 
+          gl.glRotatef(step, 0, 1, 0)
+          gl.glRotatef(step * 6, 0, 0, 1)
+          torus.draw(gl)
 
-      //
-      // Draw keyboard shortcuts
-      //
-      gl.glColor3f(.5f, .5f, .5f)
-      gl.glWindowPos2i(100, 100)
-      glut.glutBitmapString(8, "DOWN - Decrease FOV")
-      gl.glWindowPos2i(100, 120)
-      glut.glutBitmapString(8, "UP - Increase FOV")
-      gl.glWindowPos2i(100, 140)
-      glut.glutBitmapString(8, "LEFT - Draw in")
-      gl.glWindowPos2i(100, 160)
-      glut.glutBitmapString(8, "RIGHT - Pull out")
+          gl.glPopMatrix()
+        }
+
+      }
+
+      view.draw(gl)
 
       gl.glFlush()
     }
@@ -95,7 +89,9 @@ class TorusDemo extends OglApp("Torus Demo") {
       gl.glEnable(GL.GL_DEPTH_TEST)
       gl.glDepthFunc(GL.GL_LEQUAL)
     }
+
     override def reshape(drawable: GLAutoDrawable, x: Int, y: Int, _width: Int, _height: Int): Unit = {}
+
     override def dispose(drawable: GLAutoDrawable): Unit = {}
   })
 }

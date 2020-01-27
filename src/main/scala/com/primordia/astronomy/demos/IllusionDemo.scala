@@ -4,6 +4,7 @@ import com.jogamp.opengl._
 import com.jogamp.opengl.fixedfunc.{GLLightingFunc, GLMatrixFunc}
 import com.jogamp.opengl.glu.GLU
 import com.primordia.astronomy.base.OglApp
+import com.primordia.astronomy.base.caps.HighQualityCapsProvider
 
 import scala.collection.mutable
 
@@ -14,7 +15,7 @@ object IllusionDemo {
   }
 }
 
-class IllusionDemo extends OglApp("Illusion") {
+class IllusionDemo extends OglApp("Illusion")  with HighQualityCapsProvider{
   step = 0.0f
 
   canvas.addGLEventListener(new GLEventListener() {

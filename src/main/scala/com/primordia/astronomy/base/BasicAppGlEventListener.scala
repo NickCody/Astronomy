@@ -2,8 +2,10 @@ package com.primordia.astronomy.base
 
 import com.jogamp.opengl.fixedfunc.GLLightingFunc
 import com.jogamp.opengl.{GL, GLAutoDrawable, GLEventListener}
+import com.primordia.astronomy.base.caps.CapsProvider
 
 trait BasicAppGlEventListener extends GLEventListener {
+  this: CapsProvider =>
   val DEFAULT_WINDOW_WIDTH = 1920
   val DEFAULT_WINDOW_HEIGHT = 1080
 
@@ -16,13 +18,7 @@ trait BasicAppGlEventListener extends GLEventListener {
   override def init(drawable: GLAutoDrawable): Unit = {
     val gl = drawable.getGL.getGL2
 
-    gl.glShadeModel(GLLightingFunc.GL_SMOOTH)
-    gl.glEnable(GL.GL_BLEND)
-    gl.glEnable(GL.GL_MULTISAMPLE)
-    gl.glEnable(GL.GL_LINE_SMOOTH)
-    gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
-
-    gl.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_NICEST)
+    enableFeatures(gl)
   }
 
   override def dispose(drawable: GLAutoDrawable): Unit = {}

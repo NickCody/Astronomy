@@ -24,7 +24,8 @@ libraryDependencies  ++= Seq(
   "org.jogamp.gluegen"  %   "gluegen-rt-main" % "2.3.2",
   "org.jogamp.jogl"     %   "jogl-all-main"   % "2.3.2",
   "org.jogamp.gluegen"  %   "gluegen"         % "2.3.2",
-  "com.aparapi"         %   "aparapi"         % "1.10.1-SNAPSHOT"
+  "com.aparapi"         %   "aparapi"         % "1.10.1-SNAPSHOT",
+  "org.dyn4j"           %   "dyn4j"           % "3.4.0"
 )
 
 
