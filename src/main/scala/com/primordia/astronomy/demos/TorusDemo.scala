@@ -1,12 +1,13 @@
 package com.primordia.astronomy.demos
 
-import java.awt.event.{KeyEvent, KeyListener}
+import java.awt.event.{KeyEvent, KeyListener, MouseEvent, MouseListener}
 
 import com.jogamp.opengl._
 import com.jogamp.opengl.fixedfunc.GLMatrixFunc
 import com.jogamp.opengl.glu.GLU
 import com.primordia.astronomy.base.OglApp
 import com.primordia.astronomy.base.caps.HighQualityCapsProvider
+import com.primordia.astronomy.base.mouse.{MouseViewListener, ViewRotationSource}
 import com.primordia.astronomy.base.view.StandardView
 import com.primordia.astronomy.shapes.{ColorWheel, Torus}
 import org.apache.commons.math3.geometry.euclidean.threed.Vector3D
@@ -20,14 +21,14 @@ object TorusDemo {
   }
 }
 
-class TorusDemo extends OglApp("Torus Demo") with HighQualityCapsProvider {
+class TorusDemo extends OglApp("Torus Demo") with HighQualityCapsProvider with ViewRotationSource {
   protected val view = new StandardView(canvas)
 
   step_rate = 0.33f
 
   val turbulence = 0.01f
   val scale = 8f
-  val dim = 40
+  val dim = 6
   val spacing = 10
   val translations = ArrayBuffer.fill[Vector3D](dim * dim)(new Vector3D(0, 0, 0))
   for (i <- 0 until dim) {
@@ -36,7 +37,11 @@ class TorusDemo extends OglApp("Torus Demo") with HighQualityCapsProvider {
     }
   }
 
-  private val torus = new Torus(1f, 2f, 12, 24)
+  private val torus = new Torus(1f, 2f, 16, 32)
+  private val mouseListener = new MouseViewListener(this)
+
+  canvas.addMouseListener(mouseListener)
+  canvas.addMouseMotionListener(mouseListener)
 
   canvas.addGLEventListener(new GLEventListener() {
 
@@ -51,6 +56,9 @@ class TorusDemo extends OglApp("Torus Demo") with HighQualityCapsProvider {
 
       glu.gluPerspective(view.fov, ratio, view.zNear, view.zFar)
       glu.gluLookAt(0, 0, view.eyeZ, 0, 0, 0, 0f, 1f, 0f)
+
+      gl.glRotatef(viewRotationX, 1, 0, 0)
+      gl.glRotatef(viewRotationY, 0, 1, 0)
 
       for (i <- 0 until dim) {
         for (j <- 0 until dim) {
@@ -69,7 +77,7 @@ class TorusDemo extends OglApp("Torus Demo") with HighQualityCapsProvider {
           gl.glTranslated(v1.getX, v1.getY, v1.getZ)
 
           gl.glRotatef(step, 0, 1, 0)
-          gl.glRotatef(step * 6, 0, 0, 1)
+          gl.glRotatef(step * 3, 0, 0, 1)
           torus.draw(gl)
 
           gl.glPopMatrix()

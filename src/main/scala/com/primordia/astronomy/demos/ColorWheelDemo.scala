@@ -6,6 +6,7 @@ import com.jogamp.opengl._
 import com.jogamp.opengl.glu.GLU
 import com.primordia.astronomy.base.OglApp
 import com.primordia.astronomy.base.caps.HighQualityCapsProvider
+import com.primordia.astronomy.base.mouse.{MouseViewListener, ViewRotationSource}
 import com.primordia.astronomy.base.view.StandardView
 import com.primordia.astronomy.shapes.ColorWheel
 
@@ -14,7 +15,7 @@ object ColorWheelDemo {
     val colorWheelDemo = new ColorWheelDemo()
   }
 }
-class ColorWheelDemo extends OglApp("Color Wheel Demo") with HighQualityCapsProvider {
+class ColorWheelDemo extends OglApp("Color Wheel Demo") with HighQualityCapsProvider with ViewRotationSource {
   protected val view = new StandardView(canvas)
 
   step_rate = 0.1f
@@ -36,7 +37,9 @@ class ColorWheelDemo extends OglApp("Color Wheel Demo") with HighQualityCapsProv
 
     def keyReleased(e: KeyEvent): Unit = {}
   })
-
+  val mouseListener = new MouseViewListener(this)
+  canvas.addMouseListener(mouseListener)
+  canvas.addMouseMotionListener(mouseListener)
   canvas.addGLEventListener(new GLEventListener() {
 
     override def display(drawable: GLAutoDrawable): Unit = {
@@ -49,6 +52,9 @@ class ColorWheelDemo extends OglApp("Color Wheel Demo") with HighQualityCapsProv
       val glu = new GLU
       glu.gluPerspective(view.fov, ratio, view.zNear, view.zFar)
       glu.gluLookAt(0, 0, view.eyeZ, 0, 0, 0, 0f, 1f, 0f)
+
+      gl.glRotatef(viewRotationX, 1, 0, 0)
+      gl.glRotatef(viewRotationY, 0, 1, 0)
 
       colorWheel.draw(gl, step, width, height)
 
